@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منصة الملفات الرقمية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3E4C8;
+    --surface:#FFFDF8;
+    --surface-2:#FBF1DD;
+    --line:#E4D3AC;
+    --navy:#183359;
+    --accent:#CA642C;
+    --accent-ink:#FFFDF8;
+    --gold:#D7A63D;
+    --danger:#D1453A;
+    --text:#183359;
+    --text-dim:#8a7550;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;min-height:100vh;}
+  #app{min-height:100vh;display:flex;flex-direction:column;}
+  ::selection{background:var(--accent);color:var(--accent-ink);}
+
+  /* ===== top bar ===== */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);background:var(--surface);}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;color:var(--navy);}
+  .brand-logo{width:36px;height:36px;object-fit:contain;flex-shrink:0;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;}
+  .avatar-btn{width:38px;height:38px;border-radius:50%;background:var(--navy);color:#FFFDF8;font-weight:900;font-size:15px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .btn{border:none;border-radius:8px;padding:10px 18px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:transform .12s ease, opacity .12s ease;}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:var(--accent);color:var(--accent-ink);}
+  .btn-primary:hover{opacity:.9;}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--text-dim);}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-sm{padding:6px 12px;font-size:12px;border-radius:6px;}
+
+  /* ===== centered auth card ===== */
+  .center-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .auth-logo{display:block;width:64px;height:64px;object-fit:contain;margin:0 auto 14px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:32px;width:100%;max-width:400px;}
+  .card h2{margin:0 0 6px;font-size:22px;font-weight:900;text-align:center;}
+  .card p.sub{margin:0 0 22px;color:var(--text-dim);font-size:14px;text-align:center;}
+  label{display:block;font-size:13px;color:var(--text-dim);margin-bottom:6px;margin-top:14px;}
+  input{width:100%;padding:11px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:14px;}
+  input:focus{outline:none;border-color:var(--accent);}
+  .form-actions{margin-top:22px;display:flex;flex-direction:column;gap:10px;}
+  .switch-link{text-align:center;font-size:13px;color:var(--text-dim);margin-top:16px;}
+  .switch-link a{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:700;}
+  .error-msg{background:rgba(209,69,58,.1);border:1px solid rgba(209,69,58,.35);color:#a12f26;padding:10px 12px;border-radius:8px;font-size:13px;margin-top:14px;}
+  .info-msg{background:rgba(215,166,61,.16);border:1px solid rgba(215,166,61,.5);color:#7a5a12;padding:10px 12px;border-radius:8px;font-size:13px;margin-top:14px;}
+
+  /* ===== catalog ===== */
+  .page{padding:28px;max-width:1100px;margin:0 auto;width:100%;}
+  .page-head{margin-bottom:22px;}
+  .page-head h1{font-size:24px;margin:0 0 4px;font-weight:900;}
+  .page-head p{color:var(--text-dim);margin:0;font-size:14px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+  .product-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;cursor:pointer;transition:border-color .15s ease;position:relative;}
+  .product-card:hover{border-color:var(--accent);}
+  .product-thumb{height:110px;border-radius:8px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:12px;}
+  .product-card h3{margin:0 0 6px;font-size:16px;}
+  .product-card p{margin:0;color:var(--text-dim);font-size:13px;line-height:1.5;min-height:38px;}
+  .badge{position:absolute;top:14px;left:14px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;}
+  .badge-locked{background:rgba(209,69,58,.13);color:#a12f26;}
+  .badge-unlocked{background:rgba(215,166,61,.2);color:#7a5a12;}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);}
+  .rating-line{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gold);margin-top:8px;cursor:pointer;}
+  .rating-line span.count{color:var(--text-dim);}
+  .star-picker{display:flex;gap:6px;justify-content:center;font-size:28px;margin:14px 0;}
+  .star-picker span{cursor:pointer;color:var(--line);}
+  .star-picker span.on{color:var(--gold);}
+  .review-item{text-align:right;border-bottom:1px solid var(--line);padding:12px 0;}
+  .review-item:last-child{border-bottom:none;}
+  .review-item .rstars{color:var(--gold);font-size:13px;}
+  .review-item .rname{font-weight:800;font-size:13px;color:var(--navy);}
+  .review-item .rtext{font-size:13px;color:var(--text-dim);margin-top:4px;line-height:1.7;}
+  .review-empty{text-align:center;color:var(--text-dim);font-size:13px;padding:16px 0;}
+
+  /* ===== modal ===== */
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,14,4,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;overflow-y:auto;}
+  .modal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;max-width:380px;width:100%;text-align:center;margin:auto;}
+  .modal.wide{max-width:480px;text-align:right;}
+  .modal .icon{width:52px;height:52px;border-radius:50%;background:rgba(209,69,58,.13);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;}
+  .modal h3{margin:0 0 8px;font-size:17px;}
+  .modal p{margin:0 0 20px;color:var(--text-dim);font-size:14px;line-height:1.6;}
+
+  /* ===== viewer / protected content ===== */
+  .viewer-wrap{position:relative;flex:1;display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;-moz-user-select:none;}
+  .viewer-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--surface);}
+  .viewer-body{flex:1;position:relative;padding:36px;overflow:auto;background:
+    radial-gradient(circle at 20% 20%, rgba(215,166,61,.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(24,51,89,.05), transparent 40%),
+    var(--bg);}
+  .content-box{max-width:760px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:34px;position:relative;}
+  .content-box h2{margin-top:0;}
+  .content-box p{line-height:1.9;color:var(--text-dim);}
+  .watermark-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:50;}
+  .watermark-tile{position:absolute;white-space:nowrap;font-size:13px;font-weight:700;color:rgba(24,51,89,.07);transform:rotate(-28deg);}
+  .protection-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);padding:10px 24px;border-top:1px solid var(--line);background:var(--surface);}
+  .blur-guard{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;align-items:center;justify-content:center;font-size:15px;color:var(--text-dim);text-align:center;padding:20px;}
+
+  /* ===== تواصل معنا ===== */
+  .site-footer{border-top:1px solid var(--line);padding:22px 24px;text-align:center;background:var(--surface);}
+  .site-footer h4{margin:0 0 10px;font-size:14px;color:var(--navy);}
+  .site-footer .contacts{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:13px;}
+  .site-footer a{color:var(--accent);text-decoration:none;font-weight:700;}
+
+  /* ===== admin ===== */
+  .tabs{display:flex;gap:8px;margin-bottom:22px;border-bottom:1px solid var(--line);}
+  .tab{padding:10px 4px;margin-left:20px;font-size:14px;font-weight:700;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;}
+  .tab.active{color:var(--accent);border-color:var(--accent);}
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th{text-align:right;color:var(--text-dim);font-size:12px;font-weight:700;padding:10px 12px;border-bottom:1px solid var(--line);}
+  td{padding:12px;border-bottom:1px solid var(--line);}
+  tr:hover td{background:rgba(24,51,89,.03);}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:22px;}
+  .panel h3{margin:0 0 16px;font-size:16px;}
+
+  .inline-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .inline-form .full{grid-column:1/-1;}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+  .chip-on{background:rgba(215,166,61,.22);color:#7a5a12;}
+  .chip-off{background:rgba(24,51,89,.06);color:var(--text-dim);}
+  .row-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .small-note{font-size:12px;color:var(--text-dim);margin-top:8px;}
+  /* ===== تصميم "تبريعة وامردة" — نفس ألوان وتصميم البطاقات الأصلية ===== */
+  .tb-screen{--tb-bg:#F3E5C8;--tb-card:#FBF3E1;--tb-orange:#C0652E;--tb-navy:#1E3A5F;--tb-qbox:#E7EEF6;--tb-cbox:#F5E8D5;--tb-gold:#D9A441;
+    position:relative;min-height:100%;background:var(--tb-bg);color:var(--tb-navy);overflow:hidden;display:flex;flex-direction:column;}
+  .tb-blob{position:absolute;bottom:-10%;left:-10%;width:70%;height:45%;background:radial-gradient(circle at 30% 30%, #D89B6B, #C0652E 70%);border-radius:50%;opacity:.5;filter:blur(2px);pointer-events:none;}
+  .tb-blob2{position:absolute;bottom:-18%;right:-15%;width:55%;height:38%;background:radial-gradient(circle at 60% 40%, #E7C089, #C77A3F 70%);border-radius:50%;opacity:.6;pointer-events:none;}
+  .tb-inner{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;}
+  .tb-dots{display:flex;gap:6px;justify-content:center;margin:10px 0;}
+  .tb-dot{width:7px;height:7px;border-radius:2px;transform:rotate(45deg);}
+  .tb-title{font-size:34px;font-weight:900;color:var(--tb-navy);margin:10px 0;}
+  .tb-tagline{font-size:16px;font-weight:700;color:var(--tb-orange);margin-bottom:6px;}
+  .tb-quote-box{border:2px solid var(--tb-gold);background:var(--tb-card);border-radius:14px;padding:14px 22px;margin:18px 0;font-weight:700;color:var(--tb-navy);max-width:420px;}
+  .tb-eyebrow{font-size:13px;color:var(--tb-navy);opacity:.75;font-weight:700;}
+  .tb-btn{border:none;border-radius:30px;padding:14px 32px;font-family:inherit;font-weight:900;font-size:15px;cursor:pointer;background:var(--tb-orange);color:#fff;margin-top:10px;}
+  .tb-btn.navy{background:var(--tb-navy);}
+  .tb-credit{position:absolute;bottom:14px;right:20px;left:20px;display:flex;justify-content:space-between;font-size:10px;color:var(--tb-navy);opacity:.55;z-index:2;}
+  .tb-intro-box{border:2px solid var(--tb-gold);background:var(--tb-card);border-radius:16px;padding:22px;max-width:520px;text-align:right;line-height:2;font-size:14px;}
+  .tb-intro-box .em{color:var(--tb-orange);font-weight:800;}
+  .tb-choice-row{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+
+  /* شاشة سحب البطاقات */
+  .tb-game{flex:1;display:flex;flex-direction:row;position:relative;z-index:2;}
+  .tb-pile{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;padding:20px;position:relative;}
+  .tb-pile.q{border-left:2px dashed rgba(30,58,95,.25);}
+  .tb-stack{position:relative;width:120px;height:150px;}
+  .tb-stack .layer{position:absolute;inset:0;border-radius:14px;border:2px solid rgba(255,255,255,.5);}
+  .tb-pile.q .layer{background:linear-gradient(135deg,var(--tb-orange),#9c4c20);}
+  .tb-pile.c .layer{background:linear-gradient(135deg,var(--tb-navy),#0f2137);}
+  .tb-stack .layer:nth-child(1){transform:rotate(-6deg) translateY(4px);}
+  .tb-stack .layer:nth-child(2){transform:rotate(4deg) translateY(2px);}
+  .tb-stack .layer:nth-child(3){display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;}
+  .tb-pile-label{font-weight:900;font-size:17px;}
+  .tb-pile.q .tb-pile-label{color:var(--tb-orange);}
+  .tb-pile.c .tb-pile-label{color:var(--tb-navy);}
+  .tb-pile-hint{font-size:12px;color:var(--tb-navy);opacity:.6;}
+  .tb-pile-count{font-size:11px;color:var(--tb-navy);opacity:.5;}
+
+  /* البطاقة المكشوفة */
+  .tb-reveal-overlay{position:absolute;inset:0;z-index:5;background:var(--tb-bg);display:flex;align-items:flex-start;justify-content:center;padding:22px;overflow-y:auto;}
+  .tb-reveal-overlay .tb-card{margin:auto;}
+  .tb-card{position:relative;background:var(--tb-card);border-radius:22px;border-top:4px solid var(--tb-orange);max-width:480px;width:100%;padding:46px 26px 26px;text-align:center;}
+  .tb-card.is-c{border-top-color:var(--tb-navy);}
+  .tb-badge{position:absolute;top:-34px;right:50%;transform:translateX(50%);width:78px;height:78px;border-radius:50%;background:var(--tb-orange);border:4px solid var(--tb-card);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:19px;}
+  .tb-card.is-c .tb-badge{background:var(--tb-navy);}
+  .tb-num{position:absolute;top:8px;left:18px;font-weight:900;font-size:20px;color:var(--tb-orange);}
+  .tb-card.is-c .tb-num{color:var(--tb-navy);}
+  .tb-diamond{position:absolute;top:14px;width:9px;height:9px;background:var(--tb-gold);transform:rotate(45deg);}
+  .tb-diamond.right{right:16px;}
+  .tb-diamond.left{left:16px;}
+  .tb-proverb{background:var(--tb-qbox);border-radius:12px;padding:18px 16px;margin:18px 0 10px;font-weight:800;font-style:italic;color:var(--tb-navy);font-size:17px;line-height:1.7;}
+  .tb-card.is-c .tb-proverb{background:var(--tb-cbox);color:var(--tb-orange);}
+  .tb-body-text{font-size:15px;line-height:1.9;color:#3a2f22;margin:14px 4px 6px;}
+  .tb-pill{display:inline-block;border:none;border-radius:22px;padding:9px 26px;font-weight:900;font-size:13px;color:#fff;background:var(--tb-orange);margin-top:16px;}
+  .tb-card.is-c .tb-pill{background:var(--tb-navy);}
+  .tb-reveal-actions{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap;}
+
+  /* غرفة اللعب الجماعي عن بعد */
+  .tb-room-btn{position:absolute;top:14px;right:14px;z-index:6;border:none;border-radius:20px;padding:9px 16px;background:var(--tb-navy);color:#fff;font-weight:800;font-size:12px;cursor:pointer;}
+  .tb-room-panel{position:absolute;inset:0;z-index:7;background:var(--tb-bg);display:flex;align-items:center;justify-content:center;padding:22px;}
+  .tb-room-card{background:var(--tb-card);border-radius:20px;padding:30px 24px;max-width:420px;width:100%;text-align:center;border-top:4px solid var(--tb-navy);}
+  .tb-room-code{font-size:38px;font-weight:900;letter-spacing:6px;color:var(--tb-navy);background:var(--tb-qbox);border-radius:12px;padding:14px;margin:16px 0;}
+  .tb-room-link{font-size:12px;color:#3a2f22;background:var(--tb-cbox);border-radius:10px;padding:10px;word-break:break-all;margin-bottom:16px;}
+  .tb-guest-count{font-size:13px;color:var(--tb-orange);font-weight:800;margin-bottom:10px;}
+  .tb-guest-wait{font-size:15px;color:var(--tb-navy);opacity:.7;text-align:center;padding:30px 20px;}
+
+  .tb-exit{position:absolute;top:14px;left:14px;z-index:6;width:34px;height:34px;border-radius:50%;border:none;background:rgba(30,58,95,.12);color:var(--tb-navy);font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .tb-exit:hover{background:rgba(30,58,95,.22);}
+
+  .mini-cover{height:110px;border-radius:8px;overflow:hidden;position:relative;background:#F3E5C8;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px;}
+  .mini-cover .mc-blob{position:absolute;bottom:-20%;left:-10%;width:60%;height:55%;background:radial-gradient(circle at 30% 30%,#D89B6B,#C0652E 70%);border-radius:50%;opacity:.55;}
+  .mini-cover .mc-blob2{position:absolute;bottom:-25%;right:-10%;width:45%;height:42%;background:radial-gradient(circle at 60% 40%,#E7C089,#C77A3F 70%);border-radius:50%;opacity:.6;}
+  .mini-cover .mc-title{position:relative;z-index:2;font-weight:900;color:#1E3A5F;font-size:16px;}
+  .mini-cover .mc-tag{position:relative;z-index:2;color:#C0652E;font-size:10px;font-weight:700;margin-top:3px;}
+
+  @media (max-width:640px){
+    .inline-form{grid-template-columns:1fr;}
+    .page{padding:18px;}
+    table, thead, tbody, th, td, tr{display:block;}
+    thead{display:none;}
+    tr{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;padding:8px;}
+    td{border:none;padding:6px 8px;}
+    td::before{content:attr(data-label);display:block;font-size:11px;color:var(--text-dim);margin-bottom:2px;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div class="blur-guard" id="blurGuard">
+  ⚠️ تم إخفاء المحتوى مؤقتًا لحماية الملف — ارجع إلى نافذة العرض لمتابعة القراءة
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============== إعداد الاتصال بـ Supabase ============== */
+const SUPABASE_URL = "https://qahzbdfblehhmzrhbiaq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2otk9YG8zhJ_4y-EFr_v7A_35CuWEPg";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const ADMIN_EMAIL = "wardet7enin@gmail.com";
+const SUPPORT_EMAIL = "lemriraa@gmail.com";
+const SUPPORT_WHATSAPP = "22220944507";
+const LOGO_DATA_URI = "data:image/png;base64,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";
+const HEARTBEAT_MS = 15000;
+const SESSION_TIMEOUT_MS = 40000;
+const MAX_DEVICES = 3;
+
+let current = null;      // {email, username, isAdmin}
+let products = [];
+let approvedIds = new Set();
+let mySessionId = null;
+let heartbeatTimer = null;
+let view = "loading";
+let viewParams = {};
+let recoveryMode = false; // true عند العودة من رابط "نسيت كلمة المرور"
+
+/* ============== أدوات مساعدة عامة ============== */
+function fmtErr(error){
+  if(!error) return "حدث خطأ غير متوقع.";
+  const msg = (error.message||"").toLowerCase();
+  if(msg.includes("invalid login")) return "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+  if(msg.includes("already registered") || msg.includes("already exists")) return "هذا البريد الإلكتروني مسجل مسبقًا.";
+  if(msg.includes("password") && msg.includes("least")) return "كلمة المرور قصيرة جدًا (6 أحرف على الأقل).";
+  if(msg.includes("email not confirmed")) return "لم يتم تأكيد بريدك الإلكتروني بعد. تحققي من صندوق الوارد.";
+  return error.message || "حدث خطأ غير متوقع.";
+}
+
+/* ============== الجلسات وحد الأجهزة ============== */
+async function activeSessionCount(email){
+  const cutoff = new Date(Date.now()-SESSION_TIMEOUT_MS).toISOString();
+  const { count, error } = await sb.from("device_sessions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_email", email)
+    .gt("last_seen", cutoff);
+  if(error){ console.warn(error); return 0; }
+  return count||0;
+}
+// كل الأجهزة المسجّلة تاريخيًا لهذا البريد (بغض النظر عن كونها متصلة الآن أو لا)
+async function registeredDeviceIds(email){
+  const { data, error } = await sb.from("device_sessions").select("session_id").eq("user_email", email);
+  if(error){ console.warn(error); return []; }
+  return [...new Set((data||[]).map(r=>r.session_id))];
+}
+async function startHeartbeat(email){
+  // نستخدم localStorage لتثبيت هوية هذا الجهاز/المتصفح، حتى لا يُحتسب
+  // تحديث الصفحة كجهاز جديد في كل مرة.
+  const storageKey = "lamrira_device_" + email;
+  let existingId = localStorage.getItem(storageKey);
+  if(existingId){
+    mySessionId = existingId;
+    const { data } = await sb.from("device_sessions")
+      .update({ last_seen: new Date().toISOString() })
+      .eq("session_id", mySessionId)
+      .select();
+    if(!data || data.length===0){
+      await sb.from("device_sessions").insert({ user_email: email, session_id: mySessionId, last_seen: new Date().toISOString() });
+    }
+  } else {
+    mySessionId = crypto.randomUUID();
+    localStorage.setItem(storageKey, mySessionId);
+    await sb.from("device_sessions").insert({ user_email: email, session_id: mySessionId, last_seen: new Date().toISOString() });
+  }
+  heartbeatTimer = setInterval(async ()=>{
+    await sb.from("device_sessions").update({ last_seen: new Date().toISOString() }).eq("session_id", mySessionId);
+  }, HEARTBEAT_MS);
+}
+function stopHeartbeat(){
+  if(heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = null;
+}
+async function endMySession(){
+  if(mySessionId){ await sb.from("device_sessions").delete().eq("session_id", mySessionId); }
+  if(current){ localStorage.removeItem("lamrira_device_" + current.email); }
+  stopHeartbeat();
+  mySessionId = null;
+}
+
+/* ============== تحميل البيانات ============== */
+async function loadProducts(){
+  const { data, error } = await sb.from("products").select("*").order("created_at", {ascending:true});
+  products = error ? [] : (data||[]);
+}
+async function loadMyApprovals(email){
+  const { data, error } = await sb.from("approvals").select("product_id").eq("user_email", email);
+  approvedIds = new Set(error ? [] : (data||[]).map(r=>r.product_id));
+}
+function isApproved(productId){
+  return approvedIds.has(productId);
+}
+let reviewsAll = [];
+async function loadReviewsSummary(){
+  const { data, error } = await sb.from("reviews").select("product_id, rating");
+  reviewsAll = error ? [] : (data||[]);
+}
+function ratingSummary(productId){
+  const rs = reviewsAll.filter(r=>r.product_id===productId);
+  if(rs.length===0) return { avg:0, count:0 };
+  const avg = rs.reduce((a,r)=>a+r.rating,0)/rs.length;
+  return { avg, count: rs.length };
+}
+async function openReviewsModal(product, canReview){
+  const overlay = el("div",{class:"modal-overlay"});
+  const modal = el("div",{class:"modal wide"});
+  modal.append(el("h3",{style:"text-align:center;"}, "تقييمات: "+product.title));
+  const listWrap = el("div",{}, el("p",{class:"review-empty"},"جارِ التحميل..."));
+  modal.append(listWrap);
+
+  if(canReview){
+    modal.append(el("h3",{style:"margin-top:20px;font-size:14px;"},"أضيفي تقييمك"));
+    let myRating = 0;
+    const picker = el("div",{class:"star-picker"});
+    const stars = [1,2,3,4,5].map(n=>{
+      const s = el("span",{}, "★");
+      s.addEventListener("click", ()=>{ myRating = n; stars.forEach((st,i)=> st.classList.toggle("on", i<n)); });
+      picker.append(s);
+      return s;
+    });
+    modal.append(picker);
+    const comment = el("textarea",{placeholder:"رأيك (اختياري)...", style:"width:100%;min-height:70px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:13px;"});
+    modal.append(comment);
+    const errBox = el("div",{});
+    modal.append(errBox);
+    const submitBtn = el("button",{class:"btn btn-primary",style:"width:100%;margin-top:12px;"},"إرسال التقييم");
+    submitBtn.addEventListener("click", async ()=>{
+      errBox.innerHTML="";
+      if(myRating===0){ errBox.append(el("div",{class:"error-msg"},"اختاري عدد النجوم أولًا.")); return; }
+      submitBtn.disabled=true; submitBtn.textContent="جارِ الإرسال...";
+      const { error } = await sb.from("reviews").upsert({
+        product_id: product.id, user_email: current.email, username: current.username,
+        rating: myRating, comment: comment.value.trim()
+      }, { onConflict: "product_id,user_email" });
+      submitBtn.disabled=false; submitBtn.textContent="إرسال التقييم";
+      if(error){ errBox.append(el("div",{class:"error-msg"}, error.message)); return; }
+      await loadReviewsSummary();
+      overlay.remove();
+      render();
+    });
+    modal.append(submitBtn);
+  }
+
+  const closeBtn = el("button",{class:"btn btn-ghost",style:"width:100%;margin-top:14px;"},"إغلاق");
+  closeBtn.addEventListener("click", ()=>overlay.remove());
+  modal.append(closeBtn);
+  overlay.append(modal);
+  overlay.addEventListener("click",(e)=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.append(overlay);
+
+  const { data } = await sb.from("reviews").select("*").eq("product_id", product.id).order("created_at",{ascending:false});
+  listWrap.innerHTML = "";
+  if(!data || data.length===0){
+    listWrap.append(el("p",{class:"review-empty"},"لا توجد تقييمات بعد — كوني أول من يشارك رأيها."));
+  } else {
+    data.forEach(r=>{
+      const item = el("div",{class:"review-item"});
+      item.append(el("div",{class:"rstars"}, "★".repeat(r.rating)+"☆".repeat(5-r.rating)));
+      item.append(el("div",{class:"rname"}, r.username||r.user_email));
+      if(r.comment) item.append(el("div",{class:"rtext"}, r.comment));
+      listWrap.append(item);
+    });
+  }
+}
+
+/* ============== المصادقة ============== */
+async function establishSession(session){
+  const email = session.user.email;
+  const username = (session.user.user_metadata && session.user.user_metadata.username) || email.split("@")[0];
+  current = { email, username, isAdmin: email.toLowerCase()===ADMIN_EMAIL };
+  await loadProducts();
+  await loadMyApprovals(email);
+  await loadReviewsSummary();
+  await startHeartbeat(email);
+}
+async function logout(){
+  await endMySession();
+  tebraaState = null;
+  await sb.auth.signOut();
+  current = null;
+  view = "login";
+  render();
+}
+
+/* ============== الأدوات المساعدة للواجهة ============== */
+function render(){
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  if(view==="loading") app.append(el("div",{class:"center-wrap"}, el("p",{},"جارِ التحميل...")));
+  else if(view==="login") app.append(renderLogin());
+  else if(view==="register") app.append(renderRegister());
+  else if(view==="check-email") app.append(renderCheckEmail());
+  else if(view==="reset-password") app.append(renderResetPassword());
+  else if(view==="catalog") app.append(renderCatalog());
+  else if(view==="viewer") app.append(renderViewer());
+  else if(view==="admin") app.append(renderAdmin());
+  else if(view==="guest-name") app.append(renderGuestName());
+  else if(view==="guest-watch") app.append(renderGuestWatch());
+}
+
+/* ============== شاشة الدخول ============== */
+function renderLogin(){
+  const wrap = el("div",{class:"center-wrap"});
+  const card = el("div",{class:"card"});
+  card.append(el("img",{class:"auth-logo",src:LOGO_DATA_URI,alt:"لَمْريرة"}));
+  card.append(el("h2",{},"تسجيل الدخول"));
+  card.append(el("p",{class:"sub"},"ادخل إلى حسابك لعرض المنتجات المسموح لك بالوصول إليها."));
+  const email = el("input",{type:"email",placeholder:"you@example.com"});
+  const pass = el("input",{type:"password",placeholder:"••••••••"});
+  const errBox = el("div",{});
+  card.append(el("label",{},"البريد الإلكتروني"), email);
+  card.append(el("label",{},"كلمة المرور"), pass);
+  card.append(errBox);
+  const actions = el("div",{class:"form-actions"});
+  const submitBtn = el("button",{class:"btn btn-primary"},"دخول");
+  submitBtn.addEventListener("click", async ()=>{
+    errBox.innerHTML="";
+    const emailVal = email.value.trim().toLowerCase();
+    const passVal = pass.value;
+    if(!emailVal || !passVal){ errBox.append(el("div",{class:"error-msg"},"الرجاء إدخال البريد الإلكتروني وكلمة المرور.")); return; }
+    submitBtn.disabled=true; submitBtn.textContent="جارِ التحقق...";
+    const { data, error } = await sb.auth.signInWithPassword({ email: emailVal, password: passVal });
+    if(error){
+      submitBtn.disabled=false; submitBtn.textContent="دخول";
+      errBox.append(el("div",{class:"error-msg"}, fmtErr(error)));
+      return;
+    }
+    const myDeviceKey = "lamrira_device_" + emailVal;
+    const myDeviceId = localStorage.getItem(myDeviceKey);
+    const knownDevices = await registeredDeviceIds(emailVal);
+    const isKnownDevice = myDeviceId && knownDevices.includes(myDeviceId);
+    if(!isKnownDevice && knownDevices.length >= MAX_DEVICES){
+      await sb.auth.signOut();
+      submitBtn.disabled=false; submitBtn.textContent="دخول";
+      errBox.append(el("div",{class:"error-msg"}, `هذا البريد مسجَّل بالفعل من ${MAX_DEVICES} أجهزة مختلفة (الحد الأقصى). تواصلي مع صفحة لَمْريرة لإعادة ضبط الأجهزة.`));
+      return;
+    }
+    await establishSession(data.session);
+    view = current.isAdmin ? "admin" : "catalog";
+    render();
+  });
+  actions.append(submitBtn);
+  card.append(actions);
+  const forgot = el("div",{class:"switch-link"}, el("a",{onclick: async ()=>{
+    const val = email.value.trim();
+    if(!val){ errBox.innerHTML=""; errBox.append(el("div",{class:"error-msg"},"اكتبي بريدك الإلكتروني أولًا في الحقل أعلاه.")); return; }
+    const { error } = await sb.auth.resetPasswordForEmail(val, { redirectTo: window.location.origin + window.location.pathname });
+    errBox.innerHTML="";
+    if(error) errBox.append(el("div",{class:"error-msg"}, fmtErr(error)));
+    else errBox.append(el("div",{class:"info-msg"},"أرسلنا رابط إعادة تعيين كلمة المرور إلى بريدك، تحققي من صندوق الوارد."));
+  }},"نسيت كلمة المرور؟"));
+  card.append(forgot);
+  card.append(el("div",{class:"switch-link"}, "ليس لديك حساب؟ ", el("a",{onclick:()=>{view="register";render();}},"إنشاء حساب جديد")));
+  wrap.append(card);
+  return wrap;
+}
+
+/* ============== شاشة إنشاء حساب ============== */
+function renderRegister(){
+  const wrap = el("div",{class:"center-wrap"});
+  const card = el("div",{class:"card"});
+  card.append(el("img",{class:"auth-logo",src:LOGO_DATA_URI,alt:"لَمْريرة"}));
+  card.append(el("h2",{},"إنشاء حساب"));
+  card.append(el("p",{class:"sub"},"سجّل بياناتك، وبعد الموافقة على وصولك من إدارة المنصة ستتمكن من فتح المنتجات المصرح بها."));
+  const uname = el("input",{type:"text",placeholder:"اسمك"});
+  const email = el("input",{type:"email",placeholder:"you@example.com"});
+  const pass = el("input",{type:"password",placeholder:"•••••••• (6 أحرف على الأقل)"});
+  const errBox = el("div",{});
+  card.append(el("label",{},"اسم المستخدم"), uname);
+  card.append(el("label",{},"البريد الإلكتروني"), email);
+  card.append(el("label",{},"كلمة المرور"), pass);
+  card.append(errBox);
+  const actions = el("div",{class:"form-actions"});
+  const submitBtn = el("button",{class:"btn btn-primary"},"إنشاء الحساب");
+  submitBtn.addEventListener("click", async ()=>{
+    errBox.innerHTML="";
+    const u = uname.value.trim(), e = email.value.trim().toLowerCase(), p = pass.value;
+    if(!u||!e||!p){ errBox.append(el("div",{class:"error-msg"},"الرجاء تعبئة جميع الحقول.")); return; }
+    if(p.length<6){ errBox.append(el("div",{class:"error-msg"},"كلمة المرور يجب ألا تقل عن 6 أحرف.")); return; }
+    submitBtn.disabled=true; submitBtn.textContent="جارِ الإنشاء...";
+    const { error } = await sb.auth.signUp({
+      email: e, password: p,
+      options: { data: { username: u }, emailRedirectTo: window.location.origin + window.location.pathname }
+    });
+    submitBtn.disabled=false; submitBtn.textContent="إنشاء الحساب";
+    if(error){ errBox.append(el("div",{class:"error-msg"}, fmtErr(error))); return; }
+    view = "check-email"; render();
+  });
+  actions.append(submitBtn);
+  card.append(actions);
+  card.append(el("div",{class:"switch-link"}, "لديك حساب بالفعل؟ ", el("a",{onclick:()=>{view="login";render();}},"تسجيل الدخول")));
+  wrap.append(card);
+  return wrap;
+}
+function renderCheckEmail(){
+  const wrap = el("div",{class:"center-wrap"});
+  const card = el("div",{class:"card"});
+  card.append(el("h2",{},"تحققي من بريدك 📩"));
+  card.append(el("p",{class:"sub"},"أرسلنا لك رابط تأكيد إلى بريدك الإلكتروني. افتحي الرابط لتفعيل حسابك، ثم سجّلي الدخول من هنا."));
+  const backBtn = el("button",{class:"btn btn-primary"},"العودة لتسجيل الدخول");
+  backBtn.addEventListener("click", ()=>{view="login"; render();});
+  card.append(el("div",{class:"form-actions"}, backBtn));
+  wrap.append(card);
+  return wrap;
+}
+
+/* ============== شاشة تعيين كلمة مرور جديدة (من رابط الاستعادة) ============== */
+function renderResetPassword(){
+  const wrap = el("div",{class:"center-wrap"});
+  const card = el("div",{class:"card"});
+  card.append(el("h2",{},"تعيين كلمة مرور جديدة"));
+  card.append(el("p",{class:"sub"},"اكتبي كلمة المرور الجديدة لحسابك."));
+  const pass = el("input",{type:"password",placeholder:"كلمة المرور الجديدة"});
+  const pass2 = el("input",{type:"password",placeholder:"تأكيد كلمة المرور"});
+  const errBox = el("div",{});
+  card.append(el("label",{},"كلمة المرور الجديدة"), pass);
+  card.append(el("label",{},"تأكيد كلمة المرور"), pass2);
+  card.append(errBox);
+  const submitBtn = el("button",{class:"btn btn-primary"},"حفظ كلمة المرور");
+  submitBtn.addEventListener("click", async ()=>{
+    errBox.innerHTML="";
+    if(pass.value.length<6){ errBox.append(el("div",{class:"error-msg"},"كلمة المرور يجب ألا تقل عن 6 أحرف.")); return; }
+    if(pass.value!==pass2.value){ errBox.append(el("div",{class:"error-msg"},"كلمتا المرور غير متطابقتين.")); return; }
+    submitBtn.disabled=true; submitBtn.textContent="جارِ الحفظ...";
+    const { error } = await sb.auth.updateUser({ password: pass.value });
+    submitBtn.disabled=false; submitBtn.textContent="حفظ كلمة المرور";
+    if(error){ errBox.append(el("div",{class:"error-msg"}, fmtErr(error))); return; }
+    recoveryMode = false;
+    await sb.auth.signOut();
+    current = null;
+    errBox.append(el("div",{class:"info-msg"},"تم الحفظ بنجاح! سجّلي الدخول بكلمة المرور الجديدة."));
+    setTimeout(()=>{ view="login"; render(); }, 1200);
+  });
+  card.append(el("div",{class:"form-actions"}, submitBtn));
+  wrap.append(card);
+  return wrap;
+}
+
+/* ============== الشريط العلوي المشترك ============== */
+function topbar(activeIsAdmin){
+  const bar = el("div",{class:"topbar"});
+  bar.append(el("div",{class:"brand"}, el("img",{class:"brand-logo",src:LOGO_DATA_URI,alt:"لَمْريرة"}), "لَمْريرة"));
+  const right = el("div",{class:"topbar-actions"});
+  if(activeIsAdmin){
+    right.append(el("button",{class:"btn btn-ghost btn-sm",onclick:()=>{view="catalog";render();}},"عرض المتجر"));
+  } else if(current.isAdmin){
+    right.append(el("button",{class:"btn btn-ghost btn-sm",onclick:()=>{view="admin";render();}},"لوحة المالك"));
+  }
+  const avatar = el("button",{class:"avatar-btn",onclick:openAccountMenu}, (current.username||"?").trim().charAt(0).toUpperCase());
+  right.append(avatar);
+  bar.append(right);
+  return bar;
+}
+function openAccountMenu(){
+  const overlay = el("div",{class:"modal-overlay"});
+  const modal = el("div",{class:"modal"});
+  modal.append(el("div",{class:"icon"},"👤"));
+  modal.append(el("h3",{}, current.username));
+  modal.append(el("p",{style:"margin-top:-10px;"}, current.email));
+  const actions = el("div",{class:"form-actions"});
+  const changePassBtn = el("button",{class:"btn btn-ghost"},"تغيير كلمة المرور");
+  changePassBtn.addEventListener("click", ()=>{ overlay.remove(); openChangePasswordModal(); });
+  actions.append(changePassBtn);
+  if(current.isAdmin){
+    const adminBtn = el("button",{class:"btn btn-ghost"},"لوحة المالك");
+    adminBtn.addEventListener("click", ()=>{ overlay.remove(); view="admin"; render(); });
+    actions.append(adminBtn);
+  }
+  const logoutBtn = el("button",{class:"btn btn-danger"},"تسجيل الخروج");
+  logoutBtn.addEventListener("click", ()=>{ overlay.remove(); logout(); });
+  actions.append(logoutBtn);
+  const closeBtn = el("button",{class:"btn btn-ghost"},"إغلاق");
+  closeBtn.addEventListener("click", ()=>overlay.remove());
+  actions.append(closeBtn);
+  modal.append(actions);
+  overlay.append(modal);
+  overlay.addEventListener("click",(e)=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.append(overlay);
+}
+function contactFooter(){
+  const foot = el("div",{class:"site-footer"});
+  foot.append(el("h4",{},"تواصل معنا"));
+  const row = el("div",{class:"contacts"});
+  row.append(el("a",{href:"mailto:"+SUPPORT_EMAIL}, "📧 "+SUPPORT_EMAIL));
+  row.append(el("a",{href:"https://wa.me/"+SUPPORT_WHATSAPP,target:"_blank"}, "💬 واتساب"));
+  foot.append(row);
+  return foot;
+}
+function openChangePasswordModal(){
+  const overlay = el("div",{class:"modal-overlay"});
+
+  const modal = el("div",{class:"modal"});
+  modal.append(el("h3",{},"تغيير كلمة المرور"));
+  const pass = el("input",{type:"password",placeholder:"كلمة المرور الجديدة",style:"margin-bottom:10px;"});
+  const pass2 = el("input",{type:"password",placeholder:"تأكيد كلمة المرور"});
+  const errBox = el("div",{});
+  modal.append(pass, pass2, errBox);
+  const saveBtn = el("button",{class:"btn btn-primary",style:"margin-top:16px;width:100%;"},"حفظ");
+  saveBtn.addEventListener("click", async ()=>{
+    errBox.innerHTML="";
+    if(pass.value.length<6){ errBox.append(el("div",{class:"error-msg"},"6 أحرف على الأقل.")); return; }
+    if(pass.value!==pass2.value){ errBox.append(el("div",{class:"error-msg"},"غير متطابقتين.")); return; }
+    saveBtn.disabled=true; saveBtn.textContent="جارِ الحفظ...";
+    const { error } = await sb.auth.updateUser({ password: pass.value });
+    saveBtn.disabled=false; saveBtn.textContent="حفظ";
+    if(error){ errBox.append(el("div",{class:"error-msg"}, fmtErr(error))); return; }
+    errBox.append(el("div",{class:"info-msg"},"تم تغيير كلمة المرور بنجاح ✅"));
+    setTimeout(()=>overlay.remove(), 1200);
+  });
+  modal.append(saveBtn);
+  overlay.append(modal);
+  overlay.addEventListener("click",(e)=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.append(overlay);
+}
+
+/* ============== كتالوج المنتجات ============== */
+function renderCatalog(){
+  const wrap = el("div",{});
+  wrap.append(topbar(false));
+  const page = el("div",{class:"page"});
+  page.append(el("div",{class:"page-head"}, el("h1",{},"المنتجات الرقمية"), el("p",{},"الألعاب والملفات التعليمية المتاحة — الوصول يتطلب موافقة مسبقة على بريدك الإلكتروني لكل منتج.")));
+  const grid = el("div",{class:"grid"});
+  if(products.length===0){
+    grid.append(el("div",{class:"empty-state"},"لا توجد منتجات بعد."));
+  }
+  products.forEach(p=>{
+    const approved = isApproved(p.id);
+    const card = el("div",{class:"product-card"});
+    card.append(el("span",{class:"badge "+(approved?"badge-unlocked":"badge-locked")}, approved?"مصرح لك":"مقفل"));
+    if(p.type==="tebraa_cards"){
+      card.append(el("div",{class:"mini-cover"},
+        el("div",{class:"mc-blob"}), el("div",{class:"mc-blob2"}),
+        el("div",{class:"mc-title"},"تبريعة وامردة"),
+        el("div",{class:"mc-tag"},"صراحة… وتحدّي…")
+      ));
+    } else {
+      card.append(el("div",{class:"product-thumb"}, p.icon||"🗂️"));
+    }
+    card.append(el("h3",{},p.title));
+    card.append(el("p",{},p.description||""));
+    const summary = ratingSummary(p.id);
+    const ratingLine = el("div",{class:"rating-line"}, summary.count>0 ? ("⭐ "+summary.avg.toFixed(1)) : "☆ لا تقييمات بعد", el("span",{class:"count"}, summary.count>0 ? ` (${summary.count})` : " — كوني أول من يقيّم"));
+    ratingLine.addEventListener("click", (e)=>{ e.stopPropagation(); openReviewsModal(p, approved); });
+    card.append(ratingLine);
+    card.addEventListener("click", ()=>{
+      if(approved){ viewParams={productId:p.id}; view="viewer"; render(); }
+      else { showLockedModal(); }
+    });
+    grid.append(card);
+  });
+  page.append(grid);
+  page.append(contactFooter());
+  wrap.append(page);
+  return wrap;
+}
+function showLockedModal(){
+  const overlay = el("div",{class:"modal-overlay"});
+  const modal = el("div",{class:"modal"});
+  modal.append(el("div",{class:"icon"},"🔒"));
+  modal.append(el("h3",{},"الوصول غير متاح"));
+  modal.append(el("p",{},"بريدك غير مؤهل للوصول، تواصل مع صفحة لَمْريرة لمنح صلاحية الوصول"));
+  const close = el("button",{class:"btn btn-primary"},"حسنًا");
+  close.addEventListener("click", ()=>overlay.remove());
+  modal.append(close);
+  overlay.append(modal);
+  overlay.addEventListener("click",(e)=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.append(overlay);
+}
+
+/* ============== شاشة عرض المنتج المحمي ============== */
+function renderViewer(){
+  const product = products.find(p=>p.id===viewParams.productId);
+
+  if(product && product.type==="tebraa_cards"){
+    const full = el("div",{class:"viewer-wrap",oncontextmenu:(e)=>e.preventDefault(),style:"padding:0;"});
+    full.append(renderTebraaGame());
+    return full;
+  }
+
+  const wrap = el("div",{class:"viewer-wrap",oncontextmenu:(e)=>e.preventDefault()});
+  const bar = el("div",{class:"viewer-bar"});
+  bar.append(el("div",{}, el("strong",{},product?product.title:"منتج"), el("div",{style:"font-size:12px;color:var(--text-dim);margin-top:2px;"},product?product.category:"")));
+  bar.append(el("button",{class:"btn btn-ghost btn-sm",onclick:()=>{tebraaState=null; view="catalog";render();}},"عودة للمتجر"));
+  wrap.append(bar);
+
+  const body = el("div",{class:"viewer-body"});
+  const box = el("div",{class:"content-box"});
+  box.append(el("h2",{},product?product.title:""));
+  box.append(el("p",{},product?product.description:""));
+  box.append(el("p",{style:"color:var(--text-dim);font-size:13px;"}, "هذا محتوى تجريبي — في النسخة الكاملة يظهر هنا الملف/اللعبة التي يديرها المالك."));
+  box.append(watermarkLayer());
+  body.append(box);
+  wrap.append(body);
+  wrap.append(el("div",{class:"protection-note"}, "🛡️ ", "هذا المحتوى مرخّص للاستخدام الشخصي فقط، ومراقَب بعلامة مائية باسم المستخدم."));
+  return wrap;
+}
+function tebraaExitBtn(){
+  const btn = el("button",{class:"tb-exit",onclick:()=>{ if(tebraaState) leaveRoom(); view="catalog"; render();}},"✕");
+  return btn;
+}
+
+/* ============== لوحة المالك (Admin) ============== */
+let adminTab = "products";
+let allApprovals = [];
+let allSessions = [];
+
+function renderAdmin(){
+  const wrap = el("div",{});
+  wrap.append(topbar(true));
+  const page = el("div",{class:"page"});
+  page.append(el("div",{class:"page-head"}, el("h1",{},"لوحة المالك"), el("p",{},"إدارة المنتجات، صلاحيات الوصول، والأجهزة المتصلة.")));
+
+  const tabs = el("div",{class:"tabs"});
+  [["products","المنتجات"],["access","صلاحيات الوصول"],["sessions","الأجهزة النشطة"]].forEach(([key,label])=>{
+    const t = el("div",{class:"tab"+(adminTab===key?" active":"")}, label);
+    t.addEventListener("click", async ()=>{ adminTab=key; await refreshAdminTabData(); render(); });
+    tabs.append(t);
+  });
+  page.append(tabs);
+
+  if(adminTab==="products") page.append(renderAdminProducts());
+  if(adminTab==="access") page.append(renderAdminAccess());
+  if(adminTab==="sessions") page.append(renderAdminSessions());
+
+  wrap.append(page);
+  return wrap;
+}
+async function refreshAdminTabData(){
+  if(adminTab==="access"){
+    const { data } = await sb.from("approvals").select("*").order("created_at",{ascending:false});
+    allApprovals = data||[];
+  }
+  if(adminTab==="sessions"){
+    const { data } = await sb.from("device_sessions").select("*");
+    allSessions = data||[];
+  }
+}
+
+function renderAdminProducts(){
+  const box = el("div",{});
+  const formPanel = el("div",{class:"panel"});
+  formPanel.append(el("h3",{},"إضافة منتج جديد"));
+  const form = el("div",{class:"inline-form"});
+  const title = el("input",{placeholder:"عنوان المنتج"});
+  const cat = el("input",{placeholder:"التصنيف (لعبة / ملف تعليمي)"});
+  const desc = el("input",{class:"full",placeholder:"وصف مختصر"});
+  form.append(el("div",{},el("label",{},"العنوان"),title));
+  form.append(el("div",{},el("label",{},"التصنيف"),cat));
+  form.append(el("div",{class:"full"},el("label",{},"الوصف"),desc));
+  formPanel.append(form);
+  const errBox = el("div",{});
+  const addBtn = el("button",{class:"btn btn-primary",style:"margin-top:16px;"},"إضافة المنتج");
+  addBtn.addEventListener("click", async ()=>{
+    errBox.innerHTML="";
+    if(!title.value.trim()) return;
+    addBtn.disabled=true; addBtn.textContent="جارِ الإضافة...";
+    const { error } = await sb.from("products").insert({ title:title.value.trim(), category:cat.value.trim()||"عام", description:desc.value.trim(), icon:"🗂️", type:"generic" });
+    addBtn.disabled=false; addBtn.textContent="إضافة المنتج";
+    if(error){ errBox.append(el("div",{class:"error-msg"}, fmtErr(error))); return; }
+    await loadProducts();
+    render();
+  });
+  formPanel.append(addBtn, errBox);
+  box.append(formPanel);
+
+  const listPanel = el("div",{class:"panel"});
+  listPanel.append(el("h3",{},`كل المنتجات (${products.length})`));
+  const table = el("table");
+  table.append(el("thead",{},el("tr",{}, el("th",{},"العنوان"), el("th",{},"التصنيف"), el("th",{},"إجراءات"))));
+  const tbody = el("tbody");
+  products.forEach(p=>{
+    const tr = el("tr",{});
+    tr.append(el("td",{"data-label":"العنوان"},p.title));
+    tr.append(el("td",{"data-label":"التصنيف"},p.category));
+    const actions = el("td",{"data-label":"إجراءات"});
+    const del = el("button",{class:"btn btn-danger btn-sm"},"حذف");
+    del.addEventListener("click", async ()=>{
+      del.disabled=true;
+      await sb.from("products").delete().eq("id", p.id);
+      await loadProducts();
+      render();
+    });
+    actions.append(el("div",{class:"row-actions"},del));
+    tr.append(actions);
+    tbody.append(tr);
+  });
+  table.append(tbody);
+  listPanel.append(table);
+  box.append(listPanel);
+  return box;
+}
+
+function renderAdminAccess(){
+  const box = el("div",{});
+  const grantPanel = el("div",{class:"panel"});
+  grantPanel.append(el("h3",{},"منح صلاحية وصول جديدة"));
+  const form = el("div",{class:"inline-form"});
+  const emailInput = el("input",{class:"full",type:"email",placeholder:"بريد العميلة الإلكتروني"});
+  form.append(el("div",{class:"full"},el("label",{},"بريد العميلة"), emailInput));
+  grantPanel.append(form);
+  const chipsWrap = el("div",{class:"row-actions",style:"margin-top:14px;"});
+  const errBox = el("div",{});
+  products.forEach(p=>{
+    const chip = el("span",{class:"chip chip-off",style:"cursor:pointer;"}, p.title);
+    chip.addEventListener("click", async ()=>{
+      errBox.innerHTML="";
+      const em = emailInput.value.trim().toLowerCase();
+      if(!em){ errBox.append(el("div",{class:"error-msg"},"اكتبي بريد العميلة أولًا.")); return; }
+      const { error } = await sb.from("approvals").insert({ user_email: em, product_id: p.id });
+      if(error && !error.message.includes("duplicate")){ errBox.append(el("div",{class:"error-msg"}, fmtErr(error))); return; }
+      await refreshAdminTabData();
+      render();
+    });
+    chipsWrap.append(chip);
+  });
+  grantPanel.append(chipsWrap, errBox);
+  box.append(grantPanel);
+
+  const listPanel = el("div",{class:"panel"});
+  listPanel.append(el("h3",{},`الصلاحيات الممنوحة حاليًا (${allApprovals.length})`));
+  if(allApprovals.length===0){
+    listPanel.append(el("p",{class:"small-note"},"لا توجد صلاحيات ممنوحة بعد."));
+  } else {
+    const table = el("table");
+    table.append(el("thead",{},el("tr",{}, el("th",{},"البريد الإلكتروني"), el("th",{},"المنتج"), el("th",{},"إجراءات"))));
+    const tbody = el("tbody");
+    allApprovals.forEach(a=>{
+      const prod = products.find(p=>p.id===a.product_id);
+      const tr = el("tr",{});
+      tr.append(el("td",{"data-label":"البريد"}, a.user_email));
+      tr.append(el("td",{"data-label":"المنتج"}, prod?prod.title:"(محذوف)"));
+      const actions = el("td",{"data-label":"إجراءات"});
+      const revoke = el("button",{class:"btn btn-danger btn-sm"},"سحب الصلاحية");
+      revoke.addEventListener("click", async ()=>{
+        revoke.disabled=true;
+        await sb.from("approvals").delete().eq("id", a.id);
+        await refreshAdminTabData();
+        render();
+      });
+      actions.append(revoke);
+      tr.append(actions);
+      tbody.append(tr);
+    });
+    table.append(tbody);
+    listPanel.append(table);
+  }
+  box.append(listPanel);
+  return box;
+}
+
+function renderAdminSessions(){
+  const box = el("div",{});
+  const panel = el("div",{class:"panel"});
+  panel.append(el("h3",{},`الأجهزة المسجّلة (الحد الأقصى ${MAX_DEVICES} لكل مستخدمة)`));
+  const cutoff = Date.now()-SESSION_TIMEOUT_MS;
+  const byEmail = {};
+  allSessions.forEach(s=>{
+    if(!byEmail[s.user_email]) byEmail[s.user_email] = { ids:new Set(), active:0 };
+    byEmail[s.user_email].ids.add(s.session_id);
+    if(new Date(s.last_seen).getTime() >= cutoff) byEmail[s.user_email].active++;
+  });
+  const emails = Object.keys(byEmail);
+  if(emails.length===0){
+    panel.append(el("p",{class:"small-note"},"لا توجد أجهزة مسجّلة حاليًا."));
+  } else {
+    const table = el("table");
+    table.append(el("thead",{},el("tr",{}, el("th",{},"البريد الإلكتروني"), el("th",{},"الأجهزة المسجّلة"), el("th",{},"إجراءات"))));
+    const tbody = el("tbody");
+    emails.forEach(email=>{
+      const info = byEmail[email];
+      const tr = el("tr",{});
+      tr.append(el("td",{"data-label":"البريد"},email));
+      tr.append(el("td",{"data-label":"العدد"}, `${info.ids.size} / ${MAX_DEVICES} مسجّلة (${info.active} نشط الآن)`));
+      const actions = el("td",{"data-label":"إجراءات"});
+      const clearBtn = el("button",{class:"btn btn-ghost btn-sm"},"إعادة ضبط كل أجهزتها");
+      clearBtn.addEventListener("click", async ()=>{
+        clearBtn.disabled=true;
+        await sb.from("device_sessions").delete().eq("user_email", email);
+        await refreshAdminTabData();
+        render();
+      });
+      actions.append(clearBtn);
+      tr.append(actions);
+      tbody.append(tr);
+    });
+    table.append(tbody);
+    panel.append(table);
+  }
+  box.append(panel);
+  return box;
+}
+
+/* ============== بدء التشغيل ============== */
+sb.auth.onAuthStateChange((event, session)=>{
+  if(event === "PASSWORD_RECOVERY"){
+    recoveryMode = true;
+    view = "reset-password";
+    render();
+  }
+});
+
+(async function init(){
+  try{
+    if(window.location.hash.includes("type=recovery")){
+      // سنعالجها عبر onAuthStateChange أعلاه
+      return;
+    }
+    const roomParam = new URLSearchParams(window.location.search).get("room");
+    if(roomParam){
+      view = "guest-name"; viewParams = { room: roomParam.toUpperCase() };
+      render();
+      return;
+    }
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){
+      await establishSession(session);
+      view = current.isAdmin ? "admin" : "catalog";
+    } else {
+      view = "login";
+    }
+    render();
+  }catch(err){
+    document.getElementById("app").innerHTML =
+      '<div style="padding:40px;text-align:center;color:#F2EFE7;font-family:Tajawal,sans-serif;">'
+      + '<h2>حدث خطأ أثناء تحميل الصفحة</h2>'
+      + '<p style="color:#93A0BF;">' + (err && err.message ? err.message : String(err)) + '</p>'
+      + '</div>';
+    console.error(err);
+  }
+})();
+window.addEventListener("error", (e)=>{ console.error("Runtime error:", e.error||e.message); });
+
+const TEBRAA_QUESTIONS = [{"proverb": "گولو لعيالو•• عنها ترعى \"لن تنالو\"", "text": "گط شرم بالك راجل متخيم؟"}, {"proverb": "يالبال الا تم •• شفري واتكايس واتخمم", "text": "رگاج الي تبقيه هو رگاج الي مقتنعة عنو يناسبك؟"}, {"proverb": "تعگب تستكف•• وتولي، نعطوك بلگف", "text": "ماذا لو عاد معتذرا؟ تآمني بالفرصة الثانية؟"}, {"proverb": "واحن يالْبينَ •• كافينا كونك تبقينا", "text": "تآمني عن العزة تغني عن الفظة؟ والا من جماعة العزة ماتندار في المرجن؟"}, {"proverb": "ماني مسلوبة •• حدي بالوحشة معطوبة", "text": "شنهو تعريفك للسلبة؟ وبرأيك عنها تدير الطفلة فموقف ضعف واتسجداء؟"}, {"proverb": "رب ماشتكات •• الغربة محرم ما وسات", "text": "لين يعود بو الدار يشتغل في الخارج بشكل دائم، ويخترك تسكني معاه والا ابدى!!! شلاهي تختاري؟"}, {"proverb": "التبراع مسيكين •• خظ الماء يجيك الطين", "text": "من الناس الي مقتنعة عن الراجل لين تردي عليه مشاكل اهلك لاهي يتم يعايرك بيهم؟ والا تشوفي عن الفضفضة بين الزوجين تقوي العلاقة وتحسس بالأمان؟"}, {"proverb": "اتركن واحن •• ماكن ركون ولاطحن", "text": "گط گبظتي بنصيحة حد ماهو صديگ فيك وخصرلك علاقة (صداقة، اخوة، خطبة، او زواج)"}, {"proverb": "سبحان القيوم •• مذ بين اليَامس واليوم", "text": "صاحبة لين يرجع بيك الزمن تتمناي تعودي ماعرفتيهَ؟"}, {"proverb": "مستزوي بالي •• ولابگبل تنعات احوالي", "text": "تگدي تگبلي حد ماتبقيه لمجرد ان فيه مواصفات تليق بيك؟"}, {"proverb": "خالگ بعد الّي •• زين عليه يتم يْغلّي", "text": "انتي مع نصايح الجدات ان لمرة كل حكت غلاها كل ما اغْلات؟ والا تشوفيه ماتلات صالحة لذ الزمن؟"}, {"proverb": "بالي تو الرد •• شِوَاسِي گاع، اعْلين ايْصَد", "text": "لين تدايگ صاحبتك واختك وتعود أختك الظالمة مع ايهم لاهي توگفي؟"}, {"proverb": "ماعيني في الي •• مايبقيك ،ولا يحجلي", "text": "تگدي تصحبي وحدة بينها عداوة مع صاحبتك وكحلة فيها؟"}, {"proverb": "مانعطي وذني •• لِلي يگرظ فَ لْمَاكني", "text": "تسمعي لكلام الناس فاحبابك والا شي ماشفتيه بعينك ماتصدقيه؟"}, {"proverb": "فاتو بعد ايام •• ياسعد الْ جاهم من گدام", "text": "ردي علين ديگة على صغر دخلتيها متحمجية لقريبتك والا صاحبتك؟"}, {"proverb": "جات اخلعنّ •• عهودك دون المظنّ", "text": "لين لاقدر الله يختفى العريس وقت العقد تتقبلي عرس تحمجي؟ والا مانك مقتنعة بيه؟"}, {"proverb": "بالي لا تغلط •• ذ الي لاهي تخلط مايخلط", "text": "تشوفي عن فرق العمر لكبير بين الأزواج يگد يأثر على تفاهمهم؟"}, {"proverb": "درن يستكفاو •• عينين بالغيرك غير اباو", "text": "تآمني عن رگاج يگد ينسي بارگاج؟"}, {"proverb": "مذكور بقاها •• يعاگب روحو بعد معاها", "text": "ايهم اشد عندك، خيانتك بالحرام والا الزواج عليك؟"}, {"proverb": "حسبي الحسيب •• مثقل عز بلا نصيب", "text": "تگدي تقبلي براجل گط خلطو شي على قريبة لك ويسوى من بعييد؟"}, {"proverb": "عَامْ أَوْخَرْ سَنْتْ •• وَالتَّخْمَامْ أَلَّا فِيكْ أَنْتْ", "text": "لين تعودي تگدي تمحي سنة كاملة من حياتك لاهي تمحي اي سنة؟"}, {"proverb": "من نار التفگاد •• نگدي… نطفي..ننشال رماد", "text": "مندرى كان ذي التبريعة تمس بلد منك؟ وكانك عشتي شعورها؟"}, {"proverb": "ويلي مَشْقاني •• من عَوايِدْ مُوريتاني", "text": "تگدي تحاربي المجتمع على ملة حد تبغيه؟"}, {"proverb": "دمعات المحرور •• تسيل ويمسحها بالشور", "text": "تفگدي بكية گط عدلتيها محرورة وگولينا اخبارها؟"}, {"proverb": "أحمد تخراصو •• نتراه ويگبظني راسو", "text": "مندرى كان حياتك ظرك فيه أحمد ذ حالو؟"}, {"proverb": "يكذب وتجد •• هو وحدو غير ايگد", "text": "أسخف كذبة گط كذبها عليك وجدت عليك بيك التخذال عليه🌚!!؟"}, {"proverb": "مذكور الحشمان •• عاد بدارو، وأنسخ من كان", "text": "گط طمعك واحد بالخيمة واعگب تخيم عنك؟"}, {"proverb": "يظحك باكمامة •• احرم من مال اليتامى", "text": "گط تگابلتي مع ظحكة حد عابر ماتعرفيه ومشات بيك ذيك الظحكة؟"}, {"proverb": "وشكيفت نسيانو •• الي فگليبي جاهر حسيانو", "text": "من 1 الى 10 كم تقيمي سرعة التخطي عندك؟"}, {"proverb": "بيك استكفين •• مات شي شارم عينين", "text": "انتي من أي جماعة، جماعة الإستكفاء والا جماعة لخليط؟"}, {"proverb": "نتمتن وان •• حالي بيه أعلم مولان", "text": "ردي اخبار صحبة باگية فيك وگط لحگت فيك بعيد ولاكنتي تتوقعيها تخسر وبگات ظرك شد اخبار؟"}, {"proverb": "اصبر يالمعگور •• الدهر الا تسدار كرور", "text": "گط ظلمك حد واسّلط عليك وعگب خلص لك منو مولان؟"}, {"proverb": "عاد البال ايتم •• ساهي لين يگوم يتمتم", "text": "گط جربتي الحب من طرف واحد؟ وشكيف ذاك؟"}, {"proverb": "انحك فجلي •• ياسر من شي معدلي", "text": "صاحبة فحياتك صابرالها ياسر بيك خوف تخسر صحبتكم؟"}, {"proverb": "بالي گط حلف •• عنو مايضعف غير ضعف", "text": "گط بادرتي بالإعتراف والا التلميح؟ وذاك شكيفو؟"}, {"proverb": "فذي الروح اجروح •• اعمرها عاد من اعمر نوح", "text": "جرح من الطفولة مزال مدومم هوين الي يعگرو؟"}, {"proverb": "بالي شمبكيك •• مد ايدك ناجي عربيك", "text": "گولين دعوة ناجيتي بيها ربك معگورة وتحقت على زين حيلة؟"}, {"proverb": "يَـالدَّلّالْ أخَّـاهْ •• عَـالـگْ فلْـصَايِـبْ فِيــكْ ارْخَـاهْ ؟!!", "text": "گط لاحك العز فتدلي عراش العزة لحد مدلي بيك ايديه؟"}, {"proverb": "فاتو بعد أيام •• ياسعد الي جاهم من گدام", "text": "ايام من عمرك ماينتساو وتبقي ترجعيلهم؟"}, {"proverb": "طراو علي •• كالحمد أكبيل التخليَ", "text": "لين تسمعي بالتخلية شيطرالك من الغيرة؟ ردي علين موقف؟"}];
+const TEBRAA_CHALLENGES = [{"proverb": "جابر دلالي •• ذي النوبة تفگاد امحالي", "text": "عطين تبريعات من تبراع الوحشة والتفگاد ومنين يقلبوك نسالو فيك طويجينة من التجمار"}, {"proverb": "فاتو بعد أيام •• يا سعد لْجاهم من گدام", "text": "لوحيلنا شور من أشوار الظل گريب من خلاگك (لا تعذري ان صوتك ماهو زين)"}, {"proverb": "كافيني لا ريت •• مجلس من منت فلان اوقَيْت", "text": "كريلنَ \"نخط حروف نحط خروف\" عشر مرات لين تصلحيه تعطيك اجماعة 50 جديدة"}, {"proverb": "ماني مسلوبة •• حدي بالوحشة معطوبة", "text": "ديري فبحث واتساب كلمة \"توحشتك\" ونعتيلنا نتيجة البحث"}, {"proverb": "يالروح اتهناي •• اجماعة والملهى واتاي", "text": "حامريلنا رگصة اتْظحّك عند وحدة من صحباتك"}, {"proverb": "يالبال الا تم •• متمونك، مانك متخمم", "text": "نعتيلنا ردة فعل صاحبتك لين تگوليلها عنك عتي تكمي"}, {"proverb": "ساعة ملهان •• على براي الروح إعانة", "text": "تلفني على صاحبة عندك كولها عن اهلك صاعوك من الدار وانك لاهي تجيها"}, {"proverb": "في الگمرة ينتاش •• قدر من الليعة والتشباش", "text": "منين ماتكريلنا خمس تبريعات من تبراع الگمرة فدقيقتين ديري لكل وحدة في اجماعة 10 جديدة من كونكسيوه"}, {"proverb": "منو مزدوفة •• جاحدتو، إن الحروف", "text": "نعتيلن قائمة ارشيف واتساب عندك"}, {"proverb": "يالروح اتهنّاي •• الملهى اجماعة واتاي", "text": "لين تعگلي ذ الگاف تديرلك اجماعة 20 من الانترنت"}, {"proverb": "لامش فوكال •• تسابگ لو لوذن والبال", "text": "سمعين اخر فوكال مشاه المكمي"}, {"proverb": "مر لمانك حر •• نسگيك حلو تسگيني المر", "text": "مشيها لثاني رگاج عندك فديكسيوه"}, {"proverb": "وانت گاع تگد •• من باب الفال تجي وتشد", "text": "مشيها لرگاج مايتوقعها منك😂"}, {"proverb": "لحگوني يالگوم •• باطش في سقم المكعوم", "text": "تلفني لخوك صغير واحكيلو ذي التبريعة وگطعي"}, {"proverb": "واعْويْنتْ مشْـتَاگْ •• ژَدفتْـنَ، وَ اعْگـبهَ لفْـراگْ", "text": "تلفني على منت عمك وگوليلها عنك تخليتي🌚"}, {"proverb": "واشْــلاهِ يِخسِــرْ •• لَا گِلـنَ جهــراً ذَاك السِّـــرْ ؟", "text": "گولينا سر تعرفيه عن الطفلة الي گاعدة حذى زرك العربي"}, {"proverb": "تبراع المزدوف •• مايحتاج تفرصي لحروف", "text": "نحسبوك دقيقتين تالبي في التبراع يلين يفرقو"}, {"proverb": "نتمن يالمجحود •• تجيني والناس گعود", "text": "لوي عليك حولي وتمرفگي حذى لماعين وتقمصي دور مكمي صاحبتك الي معمرة مدة دقيقة"}, {"proverb": "مساء التبراع •• والزدف والأسقام والأوجاع", "text": "تلفني لصاحبتك ولا تزيديه على \"مري يخيتي ماكنت نتوقع منك ذ\" وجي گاطعة"}, {"proverb": "ماگط تگاده •• تغلاگ ومنحر لگلادة", "text": "كلم فنفس الوقت ترن على اقرب شخص لها وتجي گاطعة، خرصو ايكم لاهي يعل عليها شخصها بالعجلة"}, {"proverb": "تگلاب الصورة •• مايرجع بالدهر اللورة", "text": "مرگيلنا صورة فأكثر زمن كنت مرتاحة فيه نفسيا ف 2024"}, {"proverb": "مساء التشباش •• الما متفاصل گاع امناش", "text": "اوگفي نعدلو منك فيديو وانتي تزگني في البيت مدة دقيقة وتكري اسمو🌚"}, {"proverb": "ألاّ يالشكور •• حنة واخرز وبخور", "text": "اصغر هجالة في اجماعة عدلولها فلتر خطوبة وهمي وديروها على ستاتي مدة ربع ساعة"}, {"proverb": "تبسام اشريفي •• جقمة فامياط ايريفي", "text": "گدي بندة شوف ذراعي جاب سباعي وبدلي اسباعي بقبيلة المكمي وتلاوحيلنا عليها"}, {"proverb": "ماطاري يكون •• البال صبح منك ممكون", "text": "گولي لوالدتك عن دايرك كوماندَ في الدرك الوطني وعنو يدور الا بالسرية وخرصي شلاهي تگولك"}, {"proverb": "اجماعة بيظان•• نحناتي، حگ المنّان", "text": "اكبر وحدة في جماعة حسبولها دقيقتين وحاولو تظحكوه لين ماتظحك مشولها 50 من كونكسيوه"}, {"proverb": "تخمامي مشروم •• ببن المنعت والمكتوم", "text": "نعتيلن كم معلگة من مساج فواتساب"}, {"proverb": "شكيف تعسري•• حد اسكن في الزر العربي", "text": "اختاري شخص مقرب وتلفني عليه عنك بغايتك 10 الاف وعجلانة عليه وخرصي شلاهي يگولك"}, {"proverb": "منصاب الوحشة •• على بنكيلي تمش", "text": "دخلي بنكيلي نتعيلنا كم فيه ظرك"}, {"proverb": "مول الشفاعة •• ساويلي نصبح براعة", "text": "ختميلنا الگعدة بتبريعات على نبينا صلى الله عليه وسلم"}];
+
+function el(tag, attrs={}, ...children){
+  const e = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v])=>{
+    if(k==="class") e.className=v;
+    else if(k==="html") e.innerHTML=v;
+    else if(k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k,v);
+  });
+  children.forEach(c=>{ if(c!=null) e.append(c instanceof Node ? c : document.createTextNode(c)); });
+  return e;
+}
+function tebraaExitBtn(){
+  const btn = el("button",{class:"tb-exit",onclick:()=>{ if(tebraaState) leaveRoom(); view="catalog"; render();}},"✕");
+  return btn;
+}
+
+/* ============== لعبة "تبريعة وامردة" ============== */
+function shuffledIndices(n){
+  const arr = Array.from({length:n}, (_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+let tebraaState = null;
+function initTebraaState(){
+  tebraaState = {
+    screen: "cover", // cover | intro | game
+    qQueue: shuffledIndices(TEBRAA_QUESTIONS.length), qPos: 0,
+    cQueue: shuffledIndices(TEBRAA_CHALLENGES.length), cPos: 0,
+    revealed: null, // {type:'q'|'c', card}
+    room: null, showRoomPanel: false,
+  };
+}
+function tebraaNextCard(type){
+  const isQ = type==="q";
+  const list = isQ ? TEBRAA_QUESTIONS : TEBRAA_CHALLENGES;
+  let queueKey = isQ ? "qQueue" : "cQueue", posKey = isQ ? "qPos" : "cPos";
+  if(tebraaState[posKey] >= tebraaState[queueKey].length){
+    tebraaState[queueKey] = shuffledIndices(list.length);
+    tebraaState[posKey] = 0;
+  }
+  const idx = tebraaState[queueKey][tebraaState[posKey]];
+  tebraaState[posKey]++;
+  return list[idx];
+}
+function renderTebraaGame(){
+  if(!tebraaState) initTebraaState();
+  if(tebraaState.screen==="cover") return tebraaCoverScreen();
+  if(tebraaState.screen==="intro") return tebraaIntroScreen();
+  return tebraaGameScreen();
+}
+function tebraaCoverScreen(){
+  const s = el("div",{class:"tb-screen",style:"flex:1;"});
+  s.append(tebraaExitBtn());
+  s.append(el("div",{class:"tb-blob"}), el("div",{class:"tb-blob2"}));
+  const inner = el("div",{class:"tb-inner"});
+  inner.append(el("div",{class:"tb-eyebrow"},"لعبة رقمية بلهجة حسّانية أصيلة"));
+  inner.append(dotsRow(["gold","navy","orange"]));
+  inner.append(el("h1",{class:"tb-title"},"تبريعة وامردة"));
+  inner.append(el("div",{class:"tb-tagline"},"صراحة… وتحدّي… على إيقاع التبراع"));
+  inner.append(el("div",{class:"tb-quote-box"},"«  تاري دلّالي •• ليلة من ذوك الليالي  »"));
+  const startBtn = el("button",{class:"tb-btn",onclick:()=>{tebraaState.screen="intro";render();}},"ابدأوا اللعبة");
+  inner.append(startBtn);
+  s.append(inner);
+  s.append(watermarkLayer());
+  s.append(el("div",{class:"tb-credit"}, el("span",{},"فكرة وتصميم : لَـمْريــرة"), el("span",{},"يمنع إعادة البيع أو التوزيع أو النسخ دون إذن")));
+  return s;
+}
+function tebraaIntroScreen(){
+  const s = el("div",{class:"tb-screen",style:"flex:1;"});
+  s.append(tebraaExitBtn());
+  s.append(el("div",{class:"tb-blob"}));
+  const inner = el("div",{class:"tb-inner"});
+  inner.append(el("div",{class:"tb-eyebrow",style:"font-size:22px;font-weight:900;"},"◆ التعريف"));
+  const box = el("div",{class:"tb-intro-box"});
+  box.append(el("p",{}, "البيظان أصلهم مايستحفاو.. يشكيف التاثي منهم.. حوزو عليكم لماعين واگدو اسليك من لبخور…"));
+  box.append(el("p",{}, "وخلّو اللعبة تحيي فيكم شويات كانو ساكنين.. ومع كل تبريعة، دور الا يفزّ فيكم عريگ فم اخبر انتوم فيه."));
+  box.append(el("p",{class:"em"}, "تلعبها إلا مدّة مداسرة، وكاسرة بيناتها لحشيشة.. ومنين ماتجاوب وحدة على سؤال، خبّطوه بتحدّي."));
+  box.append(el("p",{class:"em"}, "❤️❤️ والواعر الا استمتعو"));
+  const row = el("div",{class:"tb-choice-row"});
+  row.append(el("span",{class:"tb-pill"},"بطاقة سؤال"));
+  row.append(el("span",{class:"tb-pill",style:"background:var(--tb-navy);"},"بطاقة تحدّي"));
+  box.append(row);
+  inner.append(box);
+  inner.append(dotsRow(["orange","navy","gold","orange","navy"]));
+  inner.append(el("div",{class:"tb-tagline",style:"margin-top:6px;"},"جاهزين تلتهاو وتبدأو اللعبة؟"));
+  const startBtn = el("button",{class:"tb-btn navy",onclick:()=>{tebraaState.screen="game";render();}},"يلا نبدأو 🎉");
+  inner.append(startBtn);
+  s.append(inner);
+  s.append(watermarkLayer());
+  s.append(el("div",{class:"tb-credit"}, el("span",{},"فكرة وتصميم : لَـمْريــرة"), el("span",{},"يمنع إعادة البيع أو التوزيع أو النسخ دون إذن")));
+  return s;
+}
+function dotsRow(colors){
+  const wrap = el("div",{class:"tb-dots"});
+  colors.forEach(c=>wrap.append(diamondDot(c)));
+  return wrap;
+}
+function diamondDot(color){
+  const map = {gold:"var(--tb-gold)", navy:"var(--tb-navy)", orange:"var(--tb-orange)"};
+  return el("span",{class:"tb-dot",style:`background:${map[color]||color};`});
+}
+function tebraaGameScreen(){
+  const s = el("div",{class:"tb-screen",style:"flex:1;"});
+  s.append(tebraaExitBtn());
+
+  const roomBtn = el("button",{class:"tb-room-btn"}, tebraaState.room ? "🎮 الغرفة مفتوحة" : "🎮 لعب جماعي عن بعد");
+  roomBtn.addEventListener("click", ()=>{ tebraaState.showRoomPanel = true; render(); });
+  s.append(roomBtn);
+
+  const game = el("div",{class:"tb-game"});
+
+  const qPile = el("div",{class:"tb-pile q"});
+  qPile.append(el("div",{class:"tb-stack"},
+    el("div",{class:"layer"}), el("div",{class:"layer"}), el("div",{class:"layer"},"سؤال")));
+  qPile.append(el("div",{class:"tb-pile-label"},"بطاقة سؤال"));
+  qPile.append(el("div",{class:"tb-pile-hint"},"اضغطي لسحب سؤال"));
+  qPile.addEventListener("click", ()=>{ tebraaState.revealed={type:"q", card:tebraaNextCard("q")}; broadcastCard(); render(); });
+
+  const cPile = el("div",{class:"tb-pile c"});
+  cPile.append(el("div",{class:"tb-stack"},
+    el("div",{class:"layer"}), el("div",{class:"layer"}), el("div",{class:"layer"},"تحدّي")));
+  cPile.append(el("div",{class:"tb-pile-label"},"بطاقة تحدّي"));
+  cPile.append(el("div",{class:"tb-pile-hint"},"اضغطي لسحب تحدّي"));
+  cPile.addEventListener("click", ()=>{ tebraaState.revealed={type:"c", card:tebraaNextCard("c")}; broadcastCard(); render(); });
+
+  game.append(qPile, cPile);
+  s.append(game);
+  s.append(watermarkLayer());
+
+  if(tebraaState.revealed){
+    s.append(tebraaRevealOverlay());
+  }
+  if(tebraaState.showRoomPanel){
+    s.append(tebraaRoomPanel());
+  }
+  return s;
+}
+function tebraaRoomPanel(){
+  const overlay = el("div",{class:"tb-room-panel"});
+  const card = el("div",{class:"tb-room-card"});
+  if(!tebraaState.room){
+    card.append(el("h3",{},"لعب جماعي عن بعد"));
+    card.append(el("p",{style:"color:#6b5a3a;font-size:13px;line-height:1.8;"},"افتحي غرفة، وشاركي الرابط مع صديقاتك — يدخلن مباشرة بدون حساب، ويشفن كل بطاقة تسحبينها لحظة بلحظة."));
+    const createBtn = el("button",{class:"tb-btn navy",style:"width:100%;margin-top:10px;"},"إنشاء غرفة جديدة");
+    createBtn.addEventListener("click", ()=>{ createRoom(); render(); });
+    card.append(createBtn);
+  } else {
+    card.append(el("h3",{},"الغرفة مفتوحة ✅"));
+    card.append(el("div",{class:"tb-room-code"}, tebraaState.room.code));
+    const link = window.location.origin + window.location.pathname + "?room=" + tebraaState.room.code;
+    const linkBox = el("div",{class:"tb-room-link"}, link);
+    card.append(linkBox);
+    const copyBtn = el("button",{class:"tb-btn",style:"width:100%;"},"نسخ رابط الدعوة");
+    copyBtn.addEventListener("click", ()=>{
+      navigator.clipboard && navigator.clipboard.writeText(link);
+      copyBtn.textContent = "تم النسخ ✅";
+      setTimeout(()=>{ copyBtn.textContent="نسخ رابط الدعوة"; }, 1500);
+    });
+    card.append(copyBtn);
+    card.append(el("div",{class:"tb-guest-count"}, `👥 ${tebraaState.room.guestCount||0} انضمّوا الآن`));
+    const closeRoomBtn = el("button",{class:"btn btn-danger btn-sm",style:"margin-top:6px;"},"إغلاق الغرفة");
+    closeRoomBtn.addEventListener("click", ()=>{ leaveRoom(); render(); });
+    card.append(closeRoomBtn);
+  }
+  const closeBtn = el("button",{class:"btn btn-ghost btn-sm",style:"margin-top:16px;"},"إغلاق هذي النافذة");
+  closeBtn.addEventListener("click", ()=>{ tebraaState.showRoomPanel=false; render(); });
+  card.append(closeBtn);
+  overlay.append(card);
+  return overlay;
+}
+function makeRoomCode(){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for(let i=0;i<6;i++) out += chars[Math.floor(Math.random()*chars.length)];
+  return out;
+}
+function createRoom(){
+  const code = makeRoomCode();
+  const channel = sb.channel("room-"+code, { config: { broadcast: { self: false } } });
+  channel.on("broadcast", { event: "guest-hello" }, ()=>{
+    tebraaState.room.guestCount = (tebraaState.room.guestCount||0) + 1;
+    render();
+  }).subscribe();
+  tebraaState.room = { code, channel, guestCount: 0 };
+}
+function leaveRoom(){
+  if(tebraaState.room && tebraaState.room.channel){
+    sb.removeChannel(tebraaState.room.channel);
+  }
+  tebraaState.room = null;
+  tebraaState.showRoomPanel = false;
+}
+function broadcastCard(){
+  if(!tebraaState.room) return;
+  const {type, card} = tebraaState.revealed;
+  tebraaState.room.channel.send({ type:"broadcast", event:"card", payload:{ type, card } });
+}
+function broadcastReset(){
+  if(!tebraaState.room) return;
+  tebraaState.room.channel.send({ type:"broadcast", event:"reset", payload:{} });
+}
+
+function tebraaRevealOverlay(){
+  const {type, card} = tebraaState.revealed;
+  const isQ = type==="q";
+  const overlay = el("div",{class:"tb-reveal-overlay"});
+  const cardEl = el("div",{class:"tb-card"+(isQ?"":" is-c")});
+  cardEl.append(el("div",{class:"tb-badge"}, isQ?"سؤال":"تحدّي"));
+  cardEl.append(el("div",{class:"tb-diamond right"}), el("div",{class:"tb-diamond left"}));
+  cardEl.append(el("div",{class:"tb-proverb"}, '"'+card.proverb+'"'));
+  cardEl.append(el("div",{class:"tb-body-text"}, card.text));
+  cardEl.append(el("div",{},el("span",{class:"tb-pill"}, isQ?"السؤال":"التحدّي")));
+  const actions = el("div",{class:"tb-reveal-actions"});
+  const backBtn = el("button",{class:"tb-btn"+(isQ?"":" navy")}, "رجوع للكومتين");
+  backBtn.addEventListener("click", ()=>{ tebraaState.revealed=null; broadcastReset(); render(); });
+  actions.append(backBtn);
+  cardEl.append(actions);
+  overlay.append(cardEl);
+  return overlay;
+}
+/* ============== شاشات الضيف (بدون حساب) ============== */
+let guestState = { name:"", channel:null, revealed:null, waiting:true };
+function renderGuestName(){
+  const wrap = el("div",{class:"tb-screen",style:"min-height:100vh;display:flex;"});
+  const inner = el("div",{class:"tb-inner"});
+  inner.append(el("div",{class:"tb-eyebrow"},"دعوة للعب — تبريعة وامردة"));
+  inner.append(el("h1",{class:"tb-title",style:"font-size:26px;"},"انضمي للجلسة"));
+  const input = el("input",{type:"text",placeholder:"اكتبي اسمك",style:"max-width:280px;width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--tb-gold);background:var(--tb-card);font-family:'Tajawal',sans-serif;font-size:15px;text-align:center;margin-top:16px;"});
+  const errBox = el("div",{});
+  const joinBtn = el("button",{class:"tb-btn",style:"margin-top:14px;"},"دخول للجلسة");
+  joinBtn.addEventListener("click", ()=>{
+    errBox.innerHTML="";
+    if(!input.value.trim()){ errBox.append(el("div",{class:"error-msg"},"اكتبي اسمك أولًا.")); return; }
+    guestState.name = input.value.trim();
+    joinGuestRoom(viewParams.room);
+    view = "guest-watch";
+    render();
+  });
+  inner.append(input, errBox, joinBtn);
+  wrap.append(inner);
+  return wrap;
+}
+function joinGuestRoom(code){
+  const channel = sb.channel("room-"+code, { config: { broadcast: { self:false } } });
+  channel.on("broadcast", { event:"card" }, (msg)=>{
+    guestState.revealed = msg.payload; guestState.waiting=false; render();
+  }).on("broadcast", { event:"reset" }, ()=>{
+    guestState.revealed = null; guestState.waiting=true; render();
+  }).subscribe((status)=>{
+    if(status === "SUBSCRIBED"){
+      channel.send({ type:"broadcast", event:"guest-hello", payload:{ name: guestState.name } });
+    }
+  });
+  guestState.channel = channel;
+}
+function renderGuestWatch(){
+  const wrap = el("div",{class:"tb-screen",style:"min-height:100vh;"});
+  const bar = el("div",{style:"padding:14px 20px;font-weight:800;color:var(--tb-navy);opacity:.7;font-size:13px;"}, `👋 ${guestState.name} — متابعة مباشرة`);
+  wrap.append(bar);
+  if(guestState.waiting || !guestState.revealed){
+    wrap.append(el("div",{class:"tb-guest-wait"},"⏳ بانتظار المضيفة تسحب أول بطاقة..."));
+  } else {
+    const {type, card} = guestState.revealed;
+    const isQ = type==="q";
+    const cardWrap = el("div",{style:"display:flex;align-items:center;justify-content:center;padding:20px;"});
+    const cardEl = el("div",{class:"tb-card"+(isQ?"":" is-c")});
+    cardEl.append(el("div",{class:"tb-badge"}, isQ?"سؤال":"تحدّي"));
+      cardEl.append(el("div",{class:"tb-diamond right"}), el("div",{class:"tb-diamond left"}));
+    cardEl.append(el("div",{class:"tb-proverb"}, '"'+card.proverb+'"'));
+    cardEl.append(el("div",{class:"tb-body-text"}, card.text));
+    cardEl.append(el("div",{},el("span",{class:"tb-pill"}, isQ?"السؤال":"التحدّي")));
+    cardWrap.append(cardEl);
+    wrap.append(cardWrap);
+  }
+  return wrap;
+}
+
+function watermarkLayer(){
+  const layer = el("div",{class:"watermark-layer"});
+  const label = `مرخّص للاستخدام الشخصي فقط لـ: ${current.username} | ${current.email}`;
+  for(let row=0; row<6; row++){
+    for(let col=0; col<3; col++){
+      const tile = el("div",{class:"watermark-tile",style:`top:${row*90+ (col%2?15:0)}px; left:${col*260 - 60}px;`}, label);
+      layer.append(tile);
+    }
+  }
+  return layer;
+}
+
+/* ============== منع النسخ / القص / أدوات المطور (على مستوى المتصفح فقط) ============== */
+document.addEventListener("contextmenu", (e)=>{
+  if(view==="viewer") e.preventDefault();
+});
+document.addEventListener("selectstart", (e)=>{
+  if(view==="viewer") e.preventDefault();
+});
+document.addEventListener("copy", (e)=>{
+  if(view==="viewer") e.preventDefault();
+});
+document.addEventListener("keydown", (e)=>{
+  if(view!=="viewer") return;
+  const k = e.key.toLowerCase();
+  if((e.ctrlKey||e.metaKey) && ["c","s","p","u"].includes(k)) e.preventDefault();
+  if(e.key === "PrintScreen"){
+    navigator.clipboard && navigator.clipboard.writeText("").catch(()=>{});
+  }
+});
+document.addEventListener("visibilitychange", ()=>{
+  const guard = document.getElementById("blurGuard");
+  if(view==="viewer" && document.hidden){ guard.style.display="flex"; }
+  else { guard.style.display="none"; }
+});
+</script>
+</body>
+</html>
