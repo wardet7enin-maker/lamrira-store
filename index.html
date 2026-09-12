@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>منصة الملفات الرقمية</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#F3E4C8;
@@ -102,7 +102,7 @@
   .content-box h2{margin-top:0;}
   .content-box p{line-height:1.9;color:var(--text-dim);}
   .watermark-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:50;}
-  .watermark-tile{position:absolute;white-space:nowrap;font-size:13px;font-weight:700;color:rgba(24,51,89,.07);transform:rotate(-28deg);}
+  .watermark-tile{position:absolute;white-space:nowrap;font-size:13px;font-weight:700;color:rgba(255,255,255,.09);transform:rotate(-28deg);}
   .protection-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);padding:10px 24px;border-top:1px solid var(--line);background:var(--surface);}
   .blur-guard{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;align-items:center;justify-content:center;font-size:15px;color:var(--text-dim);text-align:center;padding:20px;}
 
@@ -178,9 +178,9 @@
   .tb-diamond{position:absolute;top:14px;width:9px;height:9px;background:var(--tb-gold);transform:rotate(45deg);}
   .tb-diamond.right{right:16px;}
   .tb-diamond.left{left:16px;}
-  .tb-proverb{background:var(--tb-qbox);border-radius:12px;padding:18px 16px;margin:18px 0 10px;font-weight:800;font-style:italic;color:var(--tb-navy);font-size:17px;line-height:1.7;}
+  .tb-proverb{background:var(--tb-qbox);border-radius:12px;padding:18px 16px;margin:18px 0 10px;font-weight:700;font-style:italic;color:var(--tb-navy);font-size:17px;line-height:2;font-family:'Noto Naskh Arabic','Tajawal',sans-serif;}
   .tb-card.is-c .tb-proverb{background:var(--tb-cbox);color:var(--tb-orange);}
-  .tb-body-text{font-size:15px;line-height:1.9;color:#3a2f22;margin:14px 4px 6px;}
+  .tb-body-text{font-size:15px;line-height:2;color:#3a2f22;margin:14px 4px 6px;font-family:'Noto Naskh Arabic','Tajawal',sans-serif;}
   .tb-pill{display:inline-block;border:none;border-radius:22px;padding:9px 26px;font-weight:900;font-size:13px;color:#fff;background:var(--tb-orange);margin-top:16px;}
   .tb-card.is-c .tb-pill{background:var(--tb-navy);}
   .tb-reveal-actions{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap;}
@@ -722,8 +722,30 @@ function renderViewer(){
   return wrap;
 }
 function tebraaExitBtn(){
-  const btn = el("button",{class:"tb-exit",onclick:()=>{ if(tebraaState) leaveRoom(); view="catalog"; render();}},"✕");
+  const btn = el("button",{class:"tb-exit",onclick:promptRateThenExit},"✕");
   return btn;
+}
+function promptRateThenExit(){
+  const overlay = el("div",{class:"modal-overlay"});
+  const modal = el("div",{class:"modal"});
+  modal.append(el("div",{class:"icon"},"⭐"));
+  modal.append(el("h3",{},"قبل المغادرة..."));
+  modal.append(el("p",{},"ما رأيك في اللعبة؟ تقييمك يساعدنا كثيرًا."));
+  const rateBtn = el("button",{class:"btn btn-primary",style:"width:100%;margin-bottom:10px;"},"قيّمي الآن");
+  rateBtn.addEventListener("click", ()=>{
+    overlay.remove();
+    const product = products.find(p=>p.id===viewParams.productId);
+    if(product) openReviewsModal(product, isApproved(product.id));
+  });
+  const skipBtn = el("button",{class:"btn btn-ghost",style:"width:100%;"},"لاحقًا");
+  skipBtn.addEventListener("click", ()=>{
+    overlay.remove();
+    if(tebraaState) leaveRoom();
+    view="catalog"; render();
+  });
+  modal.append(rateBtn, skipBtn);
+  overlay.append(modal);
+  document.body.append(overlay);
 }
 
 /* ============== لوحة المالك (Admin) ============== */
@@ -972,8 +994,30 @@ function el(tag, attrs={}, ...children){
   return e;
 }
 function tebraaExitBtn(){
-  const btn = el("button",{class:"tb-exit",onclick:()=>{ if(tebraaState) leaveRoom(); view="catalog"; render();}},"✕");
+  const btn = el("button",{class:"tb-exit",onclick:promptRateThenExit},"✕");
   return btn;
+}
+function promptRateThenExit(){
+  const overlay = el("div",{class:"modal-overlay"});
+  const modal = el("div",{class:"modal"});
+  modal.append(el("div",{class:"icon"},"⭐"));
+  modal.append(el("h3",{},"قبل المغادرة..."));
+  modal.append(el("p",{},"ما رأيك في اللعبة؟ تقييمك يساعدنا كثيرًا."));
+  const rateBtn = el("button",{class:"btn btn-primary",style:"width:100%;margin-bottom:10px;"},"قيّمي الآن");
+  rateBtn.addEventListener("click", ()=>{
+    overlay.remove();
+    const product = products.find(p=>p.id===viewParams.productId);
+    if(product) openReviewsModal(product, isApproved(product.id));
+  });
+  const skipBtn = el("button",{class:"btn btn-ghost",style:"width:100%;"},"لاحقًا");
+  skipBtn.addEventListener("click", ()=>{
+    overlay.remove();
+    if(tebraaState) leaveRoom();
+    view="catalog"; render();
+  });
+  modal.append(rateBtn, skipBtn);
+  overlay.append(modal);
+  document.body.append(overlay);
 }
 
 /* ============== لعبة "تبريعة وامردة" ============== */
@@ -1022,6 +1066,12 @@ function tebraaCoverScreen(){
   inner.append(el("div",{class:"tb-quote-box"},"«  تاري دلّالي •• ليلة من ذوك الليالي  »"));
   const startBtn = el("button",{class:"tb-btn",onclick:()=>{tebraaState.screen="intro";render();}},"ابدأوا اللعبة");
   inner.append(startBtn);
+  const rateBtn = el("button",{class:"btn btn-ghost btn-sm",style:"margin-top:10px;background:var(--tb-card);"},"⭐ قيّمي اللعبة");
+  rateBtn.addEventListener("click", ()=>{
+    const product = products.find(p=>p.id===viewParams.productId);
+    if(product) openReviewsModal(product, isApproved(product.id));
+  });
+  inner.append(rateBtn);
   s.append(inner);
   s.append(watermarkLayer());
   s.append(el("div",{class:"tb-credit"}, el("span",{},"فكرة وتصميم : لَـمْريــرة"), el("span",{},"يمنع إعادة البيع أو التوزيع أو النسخ دون إذن")));
@@ -1102,7 +1152,7 @@ function tebraaRoomPanel(){
   const card = el("div",{class:"tb-room-card"});
   if(!tebraaState.room){
     card.append(el("h3",{},"لعب جماعي عن بعد"));
-    card.append(el("p",{style:"color:#6b5a3a;font-size:13px;line-height:1.8;"},"افتحي غرفة، وشاركي الرابط مع صديقاتك — يدخلن مباشرة بدون حساب، ويشفن كل بطاقة تسحبينها لحظة بلحظة."));
+    card.append(el("p",{style:"color:#6b5a3a;font-size:13px;line-height:1.8;"},"افتحي غرفة، وشاركي رابطها مع صديقاتك؛ يدخلن مباشرة دون حساب، ويشاهدن كل بطاقة تسحبينها لحظة بلحظة."));
     const createBtn = el("button",{class:"tb-btn navy",style:"width:100%;margin-top:10px;"},"إنشاء غرفة جديدة");
     createBtn.addEventListener("click", ()=>{ createRoom(); render(); });
     card.append(createBtn);
@@ -1124,7 +1174,7 @@ function tebraaRoomPanel(){
     closeRoomBtn.addEventListener("click", ()=>{ leaveRoom(); render(); });
     card.append(closeRoomBtn);
   }
-  const closeBtn = el("button",{class:"btn btn-ghost btn-sm",style:"margin-top:16px;"},"إغلاق هذي النافذة");
+  const closeBtn = el("button",{class:"btn btn-ghost btn-sm",style:"margin-top:16px;"},"إغلاق هذه النافذة");
   closeBtn.addEventListener("click", ()=>{ tebraaState.showRoomPanel=false; render(); });
   card.append(closeBtn);
   overlay.append(card);
